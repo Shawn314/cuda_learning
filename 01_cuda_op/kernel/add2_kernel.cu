@@ -5,7 +5,7 @@ __global__ void MatAdd(float* c,
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
-    int idx = j*n + i;
+    int idx = j*n + i; // row-major order
     if (i < n && j < n)
         c[idx] = a[idx] + b[idx];
 }
