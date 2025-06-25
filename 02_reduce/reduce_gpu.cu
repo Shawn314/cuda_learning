@@ -40,13 +40,15 @@ void __global__ reduce_global(real *d_x, real *d_y)
 {
     const int tid = threadIdx.x;
     real *x = d_x + blockDim.x * blockIdx.x;
-
+    // binary reduction 
     for (int offset = blockDim.x >> 1; offset > 0; offset >>= 1)
-    {
+    {   
+        // only first half of threads will do the addition
         if (tid < offset)
         {
             x[tid] += x[tid + offset];
         }
+        // wait for all threads to finish the addition
         __syncthreads();
     }
 
@@ -56,6 +58,11 @@ void __global__ reduce_global(real *d_x, real *d_y)
     }
 }
 
+/*
+    two important points:
+    1) we do not need to formulate that the number of d_x elements is a multiple of BLOCK_SIZE (tid < offset)
+    2) operation is done in shared memory, origin d_x is not modified
+*/
 void __global__ reduce_shared(real *d_x, real *d_y)
 {
     const int tid = threadIdx.x;
